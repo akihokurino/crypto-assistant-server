@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+option go_package = "pb";
+option java_package = "";
+option swift_prefix = "";
+
+import "common.proto";
+
+package address;
+
+service AddressService {
+    rpc Create (CreateAddressRequest) returns (common.AddressResponse);
+    rpc Update (UpdateAddressRequest) returns (common.AddressResponse);
+    rpc Delete (AddressID) returns (common.Empty);
+}
+
+message AddressID {
+    string addressId = 1;
+}
+
+message CreateAddressRequest {
+    string currencyCode = 1;
+    string value = 2;
+}
+
+message UpdateAddressRequest {
+    string addressId = 1;
+    string value = 2;
+}

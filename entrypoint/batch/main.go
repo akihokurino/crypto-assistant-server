@@ -1,0 +1,39 @@
+package batch
+
+import (
+	"net/http"
+	"github.com/akihokurino/crypto-assistant-server/jobs"
+	"github.com/akihokurino/crypto-assistant-server/infra/api"
+	"github.com/akihokurino/crypto-assistant-server/infra/persistence/datastore"
+	"github.com/akihokurino/crypto-assistant-server/applications"
+	"github.com/akihokurino/crypto-assistant-server/utils"
+)
+
+func init() {
+	mux := http.DefaultServeMux
+
+	idUtil := utils.NewIDUtil()
+	dateUtil := utils.NewDateUtil()
+
+	httpClient := api.NewHttpClient()
+
+	currencyRepository := datastore.NewCurrencyRepository()
+	currencyPriceRepository := datastore.NewCurrencyPriceRepository()
+
+	currencyApplication := applications.NewCurrencyApplication(currencyRepository)
+
+	currencyPriceApplication := applications.NewCurrencyPriceApplication(
+		httpClient,
+		currencyRepository,
+		currencyPriceRepository,
+		idUtil,
+		dateUtil)
+
+	mux.HandleFunc(
+		"/job/logging_currency_price",
+		appEngine(jobs.NewLoggingCurrencyPrice(currencyPriceApplication).Exec))
+
+	mux.HandleFunc(
+		"/job/register_currencies",
+		appEngine(jobs.NewRegisterCurrencies(currencyApplication).Exec))
+}

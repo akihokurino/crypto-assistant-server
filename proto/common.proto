@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+option go_package = "pb";
+option java_package = "";
+option swift_prefix="";
+
+package common;
+
+message Empty {
+
+}
+
+message UploadURL {
+    string url = 1;
+}
+
+message CurrencyCode {
+    string currencyCode = 1;
+}
+
+message UserID {
+    string userId = 1;
+}
+
+message AddressListResponse {
+    repeated AddressResponse items = 1;
+}
+
+message AddressResponse {
+    string id = 1;
+    string userId = 2;
+    string currencyCode = 3;
+    string value = 4;
+}

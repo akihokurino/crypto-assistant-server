@@ -1,0 +1,5 @@
+cron:
+- description: "logging currency price each hour"
+  schedule: every 1 hours synchronized
+  url: /job/logging_currency_price
+  target: batch

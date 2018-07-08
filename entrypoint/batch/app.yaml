@@ -1,0 +1,18 @@
+service: batch
+runtime: go
+api_version: go1.9
+handlers:
+- url: /job/.*
+  script: _go_app
+  secure: always
+
+env_variables:
+  CRYPTO_COMPARE_ENDPOINT: https://min-api.cryptocompare.com/data/pricemulti
+
+skip_files:
+- .*vendor
+- .*rpc
+- .*dbs
+- .*.idea
+- .*project-name-having-too-many-files
+- .*functions

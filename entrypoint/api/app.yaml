@@ -1,0 +1,18 @@
+service: default
+runtime: go
+api_version: go1.9
+handlers:
+- url: /.*
+  script: _go_app
+
+env_variables:
+  FIREBASE_ADMIN_KEY: /Users/akiho/.firebase/crypto-assistant-dev-firebase-adminsdk-eeusr-12a9467b10.json
+
+skip_files:
+- .*vendor
+- .*rpc
+- .*db
+- .*.idea
+- .*project-name-having-too-many-files
+- .*functions
+

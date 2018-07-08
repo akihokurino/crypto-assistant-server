@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+option go_package = "pb";
+option java_package = "";
+option swift_prefix = "";
+
+import "common.proto";
+
+package user;
+
+service MeService {
+    rpc Get (common.Empty) returns (UserResponse);
+    rpc Create (CreateUserRequest) returns (UserResponse);
+    rpc Update (UpdateUserRequest) returns (UserResponse);
+    rpc CreateUploadIconURL (common.Empty) returns (common.UploadURL);
+
+    rpc GetAddresses (common.Empty) returns (common.AddressListResponse);
+
+    rpc Follow (common.UserID) returns (common.Empty);
+    rpc UnFollow (common.UserID) returns (common.Empty);
+
+    rpc GetFollows (common.Empty) returns (UserListResponse);
+    rpc GetFollowers (common.Empty) returns (UserListResponse);
+
+    rpc GetAsset (common.Empty) returns (AssetResponse);
+}
+
+service UserService {
+    rpc GetAll (common.Empty) returns (UserListResponse);
+    rpc Get (common.UserID) returns (UserResponse);
+
+    rpc GetFollows (common.UserID) returns (UserListResponse);
+    rpc GetFollowers (common.UserID) returns (UserListResponse);
+}
+
+message CreateUserRequest {
+    string username = 1;
+}
+
+message UpdateUserRequest {
+    string username = 1;
+}
+
+message UserListResponse {
+    repeated UserResponse items = 1;
+}
+
+message UserResponse {
+    string id = 1;
+    string username = 2;
+    string iconURL = 3;
+}
+
+message AssetResponse {
+    float amount = 1;
+}

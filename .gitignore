@@ -1,0 +1,12 @@
+.idea
+
+/vendor
+/proto/.DS_Store
+/proto/go/*.go
+/proto/swift/*.swift
+/proto/swift/.DS_Store
+/proto/java/*.java
+
+functions/node_modules
+
+.var

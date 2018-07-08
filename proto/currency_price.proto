@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+option go_package = "pb";
+option java_package = "";
+option swift_prefix = "";
+
+import "common.proto";
+
+package currency_price;
+
+service CurrencyPriceService {
+    rpc GetByCurrency (common.CurrencyCode) returns (CurrencyPriceListResponse);
+}
+
+message CurrencyPriceListResponse {
+    repeated CurrencyPriceResponse items = 1;
+}
+
+message CurrencyPriceResponse {
+    string id = 1;
+    string currencyCode = 2;
+    double usd = 3;
+    int64 jpy = 4;
+    string datetime = 5;
+}

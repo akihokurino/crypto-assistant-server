@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+option go_package = "pb";
+option java_package = "";
+option swift_prefix = "";
+
+import "common.proto";
+
+package currency;
+
+service CurrencyService {
+    rpc GetAll (common.Empty) returns (CurrencyListResponse);
+}
+
+message CurrencyListResponse {
+    repeated CurrencyResponse items = 1;
+}
+
+message CurrencyResponse {
+    string code = 1;
+    string name = 2;
+}
