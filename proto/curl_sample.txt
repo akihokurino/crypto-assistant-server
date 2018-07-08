@@ -9,6 +9,12 @@ curl -X POST \
 curl -X POST \
     -H "Content-Type:application/json" \
     -H "X-Debug-User-Id: 6HakOCHNfhgqBCG9aJsr56Ih1v83" \
+    -d '{}' \
+    localhost:8080/twirp/currency_price.CurrencyPriceService/GetLast
+
+curl -X POST \
+    -H "Content-Type:application/json" \
+    -H "X-Debug-User-Id: 6HakOCHNfhgqBCG9aJsr56Ih1v83" \
     -d '{"username": "test1"}' \
     localhost:8080/twirp/user.MeService/Create
 

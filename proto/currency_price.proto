@@ -9,6 +9,7 @@ import "common.proto";
 package currency_price;
 
 service CurrencyPriceService {
+    rpc GetLast (common.Empty) returns (CurrencyPriceListResponse);
     rpc GetByCurrency (common.CurrencyCode) returns (CurrencyPriceListResponse);
 }
 
