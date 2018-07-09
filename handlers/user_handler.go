@@ -8,12 +8,22 @@ import (
 )
 
 type userHandler struct {
-	userRepository repositories.UserRepository
+	userRepository     repositories.UserRepository
+	addressRepository  repositories.AddressRepository
+	assetRepository    repositories.AssetRepository
+	currencyRepository repositories.CurrencyRepository
 }
 
-func NewUserHandler(userRepository repositories.UserRepository) pb.UserService {
+func NewUserHandler(
+	userRepository repositories.UserRepository,
+	addressRepository repositories.AddressRepository,
+	assetRepository repositories.AssetRepository,
+	currencyRepository repositories.CurrencyRepository) pb.UserService {
 	return &userHandler{
-		userRepository: userRepository,
+		userRepository:     userRepository,
+		addressRepository:  addressRepository,
+		assetRepository:    assetRepository,
+		currencyRepository: currencyRepository,
 	}
 }
 
@@ -51,4 +61,27 @@ func (h *userHandler) GetFollowers(ctx context.Context, req *pb.UserID) (*pb.Use
 	}
 
 	return toUserListResponse(users), nil
+}
+
+func (h *userHandler) GetPortfolios(ctx context.Context, req *pb.UserID) (*pb.PortfolioListResponse, error) {
+	uid := models.UserID(req.UserId)
+
+	currencies, err := h.currencyRepository.GetAll(ctx)
+	if err != nil {
+		return nil, handleError(ctx, err)
+	}
+
+	addresses, err := h.addressRepository.GetByUser(ctx, uid)
+	if err != nil {
+		return nil, handleError(ctx, err)
+	}
+
+	assets, err := h.assetRepository.GetByUser(ctx, uid)
+	if err != nil {
+		return nil, handleError(ctx, err)
+	}
+
+	portfolios := models.CalcPortfolios(addresses, assets, currencies, false)
+
+	return toPortfolioListResponse(portfolios), nil
 }

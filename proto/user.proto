@@ -23,6 +23,8 @@ service MeService {
     rpc GetFollowers (common.Empty) returns (UserListResponse);
 
     rpc GetAsset (common.Empty) returns (AssetResponse);
+
+    rpc GetPortfolios (common.Empty) returns (PortfolioListResponse);
 }
 
 service UserService {
@@ -31,6 +33,8 @@ service UserService {
 
     rpc GetFollows (common.UserID) returns (UserListResponse);
     rpc GetFollowers (common.UserID) returns (UserListResponse);
+
+    rpc GetPortfolios (common.UserID) returns (PortfolioListResponse);
 }
 
 message CreateUserRequest {
@@ -53,4 +57,14 @@ message UserResponse {
 
 message AssetResponse {
     float amount = 1;
+}
+
+message PortfolioResponse {
+    string currencyCode = 1;
+    string currencyName = 2;
+    float amount = 3;
+}
+
+message PortfolioListResponse {
+    repeated PortfolioResponse items = 1;
 }

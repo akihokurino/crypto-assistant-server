@@ -15,6 +15,7 @@ type meHandler struct {
 	addressRepository       repositories.AddressRepository
 	assetRepository         repositories.AssetRepository
 	currencyPriceRepository repositories.CurrencyPriceRepository
+	currencyRepository      repositories.CurrencyRepository
 	userApplication         applications.UserApplication
 	uploader                Uploader
 	contextUtil             utils.ContextUtil
@@ -25,6 +26,7 @@ func NewMeHandler(
 	addressRepository repositories.AddressRepository,
 	assetRepository repositories.AssetRepository,
 	currencyPriceRepository repositories.CurrencyPriceRepository,
+	currencyRepository repositories.CurrencyRepository,
 	userApplication applications.UserApplication,
 	uploader Uploader,
 	contextUtil utils.ContextUtil) pb.MeService {
@@ -33,6 +35,7 @@ func NewMeHandler(
 		addressRepository:       addressRepository,
 		assetRepository:         assetRepository,
 		currencyPriceRepository: currencyPriceRepository,
+		currencyRepository:      currencyRepository,
 		userApplication:         userApplication,
 		uploader:                uploader,
 		contextUtil:             contextUtil,
@@ -190,4 +193,30 @@ func (h *meHandler) GetAsset(ctx context.Context, req *pb.Empty) (*pb.AssetRespo
 	}
 
 	return toAssetResponse(amount), nil
+}
+
+func (h *meHandler) GetPortfolios(ctx context.Context, req *pb.Empty) (*pb.PortfolioListResponse, error) {
+	uid, ok := h.contextUtil.AuthUID(ctx)
+	if !ok {
+		return nil, handleError(ctx, errors.New("failed resolve dependency"))
+	}
+
+	currencies, err := h.currencyRepository.GetAll(ctx)
+	if err != nil {
+		return nil, handleError(ctx, err)
+	}
+
+	addresses, err := h.addressRepository.GetByUser(ctx, uid)
+	if err != nil {
+		return nil, handleError(ctx, err)
+	}
+
+	assets, err := h.assetRepository.GetByUser(ctx, uid)
+	if err != nil {
+		return nil, handleError(ctx, err)
+	}
+
+	portfolios := models.CalcPortfolios(addresses, assets, currencies, true)
+
+	return toPortfolioListResponse(portfolios), nil
 }

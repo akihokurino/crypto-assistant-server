@@ -47,6 +47,23 @@ func NewAssetRepository() repositories.AssetRepository {
 	return &assetRepository{}
 }
 
+func (r *assetRepository) GetByUser(ctx context.Context, userId models.UserID) ([]*models.Asset, error) {
+	g := goon.FromContext(ctx)
+	q := datastore.NewQuery(kindAsset).Filter("UserId =", userId)
+
+	var assetDAOList []*AssetDAO
+	if _, err := g.GetAll(q, &assetDAOList); err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	assetList := make([]*models.Asset, len(assetDAOList))
+	for i, v := range assetDAOList {
+		assetList[i] = v.toModel()
+	}
+
+	return assetList, nil
+}
+
 func (r *assetRepository) Get(ctx context.Context, userId models.UserID, addressId models.AddressID) (*models.Asset, error) {
 	g := goon.FromContext(ctx)
 

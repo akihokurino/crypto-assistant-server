@@ -90,3 +90,19 @@ func toAssetResponse(amount float64) *pb.AssetResponse {
 		Amount: float32(amount),
 	}
 }
+
+func toPortfolioListResponse(from []*models.Portfolio) *pb.PortfolioListResponse {
+	var items []*pb.PortfolioResponse
+	for _, v := range from {
+		items = append(items, toPortfolioResponse(v))
+	}
+	return &pb.PortfolioListResponse{Items: items}
+}
+
+func toPortfolioResponse(from *models.Portfolio) *pb.PortfolioResponse {
+	return &pb.PortfolioResponse{
+		CurrencyCode: string(from.Code),
+		CurrencyName: from.Name,
+		Amount: float32(from.Amount),
+	}
+}

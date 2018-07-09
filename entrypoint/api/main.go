@@ -41,16 +41,15 @@ func init() {
 		"crypto-assistant-dev.appspot.com/users/",
 		uploadUserIconCallbackPath)
 
-	currencyService := pb.NewCurrencyServiceServer(
-		handlers.NewCurrencyHandler(currencyRepository),
-		newLoggingServerHooks())
+	currencyService := pb.NewCurrencyServiceServer(handlers.NewCurrencyHandler(
+		currencyRepository), newLoggingServerHooks())
 	mux.Handle(
 		pb.CurrencyServicePathPrefix,
 		appEngine(auth(currencyService)))
 
-	currencyPriceService := pb.NewCurrencyPriceServiceServer(
-		handlers.NewCurrencyPriceHandler(currencyRepository, currencyPriceRepository),
-		newLoggingServerHooks())
+	currencyPriceService := pb.NewCurrencyPriceServiceServer(handlers.NewCurrencyPriceHandler(
+		currencyRepository,
+		currencyPriceRepository), newLoggingServerHooks())
 	mux.Handle(
 		pb.CurrencyPriceServicePathPrefix,
 		appEngine(auth(currencyPriceService)))
@@ -60,13 +59,17 @@ func init() {
 		addressRepository,
 		assetRepository,
 		currencyPriceRepository,
+		currencyRepository,
 		userApplication,
 		uploader,
 		contextUtil), newLoggingServerHooks())
 	mux.Handle(pb.MeServicePathPrefix, appEngine(auth(meService)))
 
 	userService := pb.NewUserServiceServer(handlers.NewUserHandler(
-		userRepository), newLoggingServerHooks())
+		userRepository,
+		addressRepository,
+		assetRepository,
+		currencyRepository), newLoggingServerHooks())
 	mux.Handle(pb.UserServicePathPrefix, appEngine(auth(userService)))
 
 	addressService := pb.NewAddressServiceServer(handlers.NewAddressHandler(
