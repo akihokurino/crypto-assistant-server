@@ -1,7 +1,8 @@
 const DataStore = require('@google-cloud/datastore');
 const etherscan = require('etherscan-api').init('FQFUE4MMQW4BIWC2I31176GCQN5ZMJH319');
-const projectId = 'crypto-assistant-dev';
 const Units = require('ethereumjs-units');
+
+const projectId = 'crypto-assistant-dev';
 
 const dataStore = new DataStore({
   projectId: projectId,
@@ -9,14 +10,25 @@ const dataStore = new DataStore({
 
 const calcAssets = (event, callback) => {
   const message = event.data;
-  const addressId = Buffer.from(message.data, 'base64').toString();
+  const addressIds = Buffer.from(message.data, 'base64').toString().split(",");
 
+  Promise.all(addressIds.map((addressId) => {
+    return calcAsset(addressId);
+  }))
+  .then(() => {
+    callback();
+  })
+  .catch(err => {
+    console.error('ERROR:', err);
+    callback();
+  });
+};
+
+const calcAsset = (addressId) => {
   const key = dataStore.key(['Address', addressId]);
-
   let address;
 
-  dataStore
-  .get(key)
+  return dataStore.get(key)
   .then((results) => {
     if (results.length === 0) {
       return;
@@ -37,13 +49,6 @@ const calcAssets = (event, callback) => {
       updateAsset(address.UserId, addressId, amount),
       updateTransaction(address.UserId, addressId, transaction)
     ]);
-  })
-  .then(() => {
-    callback();
-  })
-  .catch(err => {
-    console.error('ERROR:', err);
-    callback();
   });
 };
 
@@ -76,21 +81,6 @@ const updateTransaction = (userId, addressId, text) => {
     },
   };
   return dataStore.save(Transaction);
-};
-
-const calcAssetsLocal = (address) => {
-  const balance = etherscan.account.balance(address);
-  const txList = etherscan.account.txlist(address);
-
-  Promise.all([balance, txList])
-  .then((results) => {
-    const amount = Units.convert(results[0].result, 'wei', 'eth');
-    console.log(amount);
-    console.log(results[1].result);
-  })
-  .catch(err => {
-    console.error('ERROR:', err);
-  });
 };
 
 module.exports = calcAssets;

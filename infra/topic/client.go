@@ -5,10 +5,11 @@ import (
 	"cloud.google.com/go/pubsub"
 	"github.com/akihokurino/crypto-assistant-server/domain/models"
 	"google.golang.org/appengine/log"
+	"strings"
 )
 
 type PubsubClient interface {
-	SendAddress(ctx context.Context, address *models.Address) error
+	SendAddress(ctx context.Context, addresses []*models.Address) error
 }
 
 type pubsubClient struct {
@@ -19,7 +20,7 @@ func NewPubsubClient() PubsubClient {
 	return &pubsubClient{}
 }
 
-func (m *pubsubClient) SendAddress(ctx context.Context, address *models.Address) error {
+func (m *pubsubClient) SendAddress(ctx context.Context, addresses []*models.Address) error {
 	client, err := pubsub.NewClient(ctx, "crypto-assistant-dev")
 	if err != nil {
 		return err
@@ -27,7 +28,14 @@ func (m *pubsubClient) SendAddress(ctx context.Context, address *models.Address)
 
 	topic := m.createTopicIfNotExists(ctx, client)
 
-	message := &pubsub.Message{Data: []byte(address.Id)}
+	addressIds := make([]string, len(addresses))
+	for i, v := range addresses {
+		addressIds[i] = string(v.Id)
+	}
+
+	joinedAddressIds := strings.Join(addressIds, ",")
+
+	message := &pubsub.Message{Data: []byte(joinedAddressIds)}
 
 	test := topic.Publish(ctx, message)
 
@@ -35,7 +43,7 @@ func (m *pubsubClient) SendAddress(ctx context.Context, address *models.Address)
 		return err
 	}
 
-	log.Infof(ctx, "success publish address of %v", address.Value)
+	log.Infof(ctx, "success publish address of %v", joinedAddressIds)
 
 	return nil
 }

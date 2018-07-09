@@ -7,6 +7,7 @@ import (
 	"github.com/akihokurino/crypto-assistant-server/infra/persistence/datastore"
 	"github.com/akihokurino/crypto-assistant-server/applications"
 	"github.com/akihokurino/crypto-assistant-server/utils"
+	"github.com/akihokurino/crypto-assistant-server/infra/topic"
 )
 
 func init() {
@@ -16,9 +17,11 @@ func init() {
 	dateUtil := utils.NewDateUtil()
 
 	httpClient := api.NewHttpClient()
+	pubsubClient := topic.NewPubsubClient()
 
 	currencyRepository := datastore.NewCurrencyRepository()
 	currencyPriceRepository := datastore.NewCurrencyPriceRepository()
+	addressRepository := datastore.NewAddressRepository()
 
 	currencyApplication := applications.NewCurrencyApplication(currencyRepository)
 
@@ -36,4 +39,8 @@ func init() {
 	mux.HandleFunc(
 		"/job/register_currencies",
 		appEngine(jobs.NewRegisterCurrencies(currencyApplication).Exec))
+
+	mux.HandleFunc(
+		"/job/update_asset",
+		appEngine(jobs.NewUpdateAsset(addressRepository, pubsubClient).Exec))
 }

@@ -6,6 +6,7 @@ import (
 )
 
 type AddressRepository interface {
+	GetAll(ctx context.Context) ([]*models.Address, error)
 	GetByUser(ctx context.Context, userId models.UserID) ([]*models.Address, error)
 	Get(ctx context.Context, addressId models.AddressID) (*models.Address, error)
 	ExistAddress(ctx context.Context, addressText string) (bool, error)

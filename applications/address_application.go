@@ -71,7 +71,7 @@ func (a *addressApplication) Create(
 		return nil, err
 	}
 
-	if err := a.pubsubClient.SendAddress(ctx, address); err != nil {
+	if err := a.pubsubClient.SendAddress(ctx, []*models.Address{address}); err != nil {
 		return nil, err
 	}
 
@@ -107,7 +107,7 @@ func (a *addressApplication) Update(ctx context.Context, userId models.UserID, a
 		return nil, err
 	}
 
-	if err := a.pubsubClient.SendAddress(ctx, address); err != nil {
+	if err := a.pubsubClient.SendAddress(ctx, []*models.Address{address}); err != nil {
 		return nil, err
 	}
 

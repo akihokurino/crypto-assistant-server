@@ -48,6 +48,23 @@ func NewAddressRepository() repositories.AddressRepository {
 	return &addressRepository{}
 }
 
+func (r *addressRepository) GetAll(ctx context.Context) ([]*models.Address, error) {
+	g := goon.FromContext(ctx)
+	q := datastore.NewQuery(kindAddress)
+
+	var addressDAOList []*AddressDAO
+	if _, err := g.GetAll(q, &addressDAOList); err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	addressList := make([]*models.Address, len(addressDAOList))
+	for i, v := range addressDAOList {
+		addressList[i] = v.toModel()
+	}
+
+	return addressList, nil
+}
+
 func (r *addressRepository) GetByUser(ctx context.Context, userId models.UserID) ([]*models.Address, error) {
 	g := goon.FromContext(ctx)
 	q := datastore.NewQuery(kindAddress).Filter("UserId =", userId)

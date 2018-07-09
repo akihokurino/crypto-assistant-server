@@ -3,3 +3,8 @@ cron:
   schedule: every 1 hours synchronized
   url: /job/logging_currency_price
   target: batch
+
+- description: "update assets each hour"
+  schedule: every 1 hours synchronized
+  url: /job/update_asset
+  target: batch
