@@ -7,27 +7,32 @@ import (
 	"github.com/mjibson/goon"
 	"google.golang.org/appengine/datastore"
 	"github.com/pkg/errors"
+	"net/url"
 )
 
 const kindCurrency = "Currency"
 
 type CurrencyDAO struct {
-	_kind string `goon:"kind,Currency"`
-	Code  string `datastore:"-" goon:"id"`
-	Name  string
+	_kind   string `goon:"kind,Currency"`
+	Code    string `datastore:"-" goon:"id"`
+	Name    string
+	IconURL string
 }
 
 func (d *CurrencyDAO) toModel() *models.Currency {
+	iconURL, _ := url.Parse(d.IconURL)
 	return &models.Currency{
-		Code: models.CurrencyCode(d.Code),
-		Name: d.Name,
+		Code:    models.CurrencyCode(d.Code),
+		Name:    d.Name,
+		IconURL: iconURL,
 	}
 }
 
 func fromCurrencyToDAO(from *models.Currency) *CurrencyDAO {
 	return &CurrencyDAO{
-		Code: string(from.Code),
-		Name: from.Name,
+		Code:    string(from.Code),
+		Name:    from.Name,
+		IconURL: from.IconURL.String(),
 	}
 }
 

@@ -19,4 +19,5 @@ message CurrencyListResponse {
 message CurrencyResponse {
     string code = 1;
     string name = 2;
+    string iconURL = 3;
 }

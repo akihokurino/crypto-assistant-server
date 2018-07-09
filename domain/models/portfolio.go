@@ -1,13 +1,13 @@
 package models
 
 type Portfolio struct {
-	*Currency
+	CurrencyCode CurrencyCode
 	Amount float64
 }
 
 func newPortfolio(currency *Currency, amount float64) *Portfolio {
 	return &Portfolio{
-		Currency: currency,
+		CurrencyCode: currency.Code,
 		Amount: amount,
 	}
 }

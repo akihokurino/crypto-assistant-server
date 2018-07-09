@@ -16,8 +16,9 @@ func toUploadURLResponse(from *url.URL) *pb.UploadURL {
 
 func toCurrencyResponse(from *models.Currency) *pb.CurrencyResponse {
 	return &pb.CurrencyResponse{
-		Code: string(from.Code),
-		Name: from.Name,
+		Code:    string(from.Code),
+		Name:    from.Name,
+		IconURL: from.IconURL.String(),
 	}
 }
 
@@ -70,10 +71,10 @@ func toUserListResponse(from []*models.User) *pb.UserListResponse {
 
 func toAddressResponse(from *models.Address) *pb.AddressResponse {
 	return &pb.AddressResponse{
-		Id: string(from.Id),
-		UserId: string(from.UserId),
+		Id:           string(from.Id),
+		UserId:       string(from.UserId),
 		CurrencyCode: string(from.CurrencyCode),
-		Value: from.Value,
+		Value:        from.Value,
 	}
 }
 
@@ -101,8 +102,7 @@ func toPortfolioListResponse(from []*models.Portfolio) *pb.PortfolioListResponse
 
 func toPortfolioResponse(from *models.Portfolio) *pb.PortfolioResponse {
 	return &pb.PortfolioResponse{
-		CurrencyCode: string(from.Code),
-		CurrencyName: from.Name,
-		Amount: float32(from.Amount),
+		CurrencyCode: string(from.CurrencyCode),
+		Amount:       float32(from.Amount),
 	}
 }

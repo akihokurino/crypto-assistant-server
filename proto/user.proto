@@ -61,7 +61,6 @@ message AssetResponse {
 
 message PortfolioResponse {
     string currencyCode = 1;
-    string currencyName = 2;
     float amount = 3;
 }
 
