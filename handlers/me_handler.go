@@ -177,20 +177,14 @@ func (h *meHandler) GetAsset(ctx context.Context, req *pb.Empty) (*pb.AssetRespo
 		return nil, handleError(ctx, err)
 	}
 
-	var amount float64
-	for _, v := range addresses {
-		asset, err := h.assetRepository.Get(ctx, uid, v.Id)
-		if err != nil {
-			continue
-		}
-
-		currentPrice, err := h.currencyPriceRepository.GetLastByCurrency(ctx, v.CurrencyCode)
-		if err != nil {
-			continue
-		}
-
-		amount += currentPrice.JPY * asset.Amount
+	assets := make([]*models.Asset, len(addresses))
+	prices := make([]*models.CurrencyPrice, len(addresses))
+	for i, v := range addresses {
+		assets[i], _ = h.assetRepository.Get(ctx, uid, v.Id)
+		prices[i], _ = h.currencyPriceRepository.GetLastByCurrency(ctx, v.CurrencyCode)
 	}
+
+	amount := models.CalcAmount(assets, prices)
 
 	return toAssetResponse(amount), nil
 }
