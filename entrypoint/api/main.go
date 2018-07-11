@@ -45,14 +45,14 @@ func init() {
 		currencyRepository), newLoggingServerHooks())
 	mux.Handle(
 		pb.CurrencyServicePathPrefix,
-		appEngine(auth(currencyService)))
+		appEngine(currencyService))
 
 	currencyPriceService := pb.NewCurrencyPriceServiceServer(handlers.NewCurrencyPriceHandler(
 		currencyRepository,
 		currencyPriceRepository), newLoggingServerHooks())
 	mux.Handle(
 		pb.CurrencyPriceServicePathPrefix,
-		appEngine(auth(currencyPriceService)))
+		appEngine(currencyPriceService))
 
 	meService := pb.NewMeServiceServer(handlers.NewMeHandler(
 		userRepository,
