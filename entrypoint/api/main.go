@@ -45,14 +45,14 @@ func init() {
 		currencyRepository), newLoggingServerHooks())
 	mux.Handle(
 		pb.CurrencyServicePathPrefix,
-		appEngine(currencyService))
+		cros(appEngine(currencyService)))
 
 	currencyPriceService := pb.NewCurrencyPriceServiceServer(handlers.NewCurrencyPriceHandler(
 		currencyRepository,
 		currencyPriceRepository), newLoggingServerHooks())
 	mux.Handle(
 		pb.CurrencyPriceServicePathPrefix,
-		appEngine(currencyPriceService))
+		cros(appEngine(currencyPriceService)))
 
 	meService := pb.NewMeServiceServer(handlers.NewMeHandler(
 		userRepository,
@@ -63,19 +63,19 @@ func init() {
 		userApplication,
 		uploader,
 		contextUtil), newLoggingServerHooks())
-	mux.Handle(pb.MeServicePathPrefix, appEngine(auth(meService)))
+	mux.Handle(pb.MeServicePathPrefix, cros(appEngine(auth(meService))))
 
 	userService := pb.NewUserServiceServer(handlers.NewUserHandler(
 		userRepository,
 		addressRepository,
 		assetRepository,
 		currencyRepository), newLoggingServerHooks())
-	mux.Handle(pb.UserServicePathPrefix, appEngine(auth(userService)))
+	mux.Handle(pb.UserServicePathPrefix, cros(appEngine(auth(userService))))
 
 	addressService := pb.NewAddressServiceServer(handlers.NewAddressHandler(
 		addressApplication,
 		contextUtil), newLoggingServerHooks())
-	mux.Handle(pb.AddressServicePathPrefix, appEngine(auth(addressService)))
+	mux.Handle(pb.AddressServicePathPrefix, cros(appEngine(auth(addressService))))
 
 	mux.HandleFunc(uploadUserIconCallbackPath, handlers.NewUploadCallbackHandler(uploadApplication).CallbackUserIcon)
 }

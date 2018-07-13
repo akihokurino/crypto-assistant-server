@@ -57,3 +57,16 @@ func auth(base http.Handler) http.Handler {
 		//}
 	})
 }
+
+func cros(base http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
+		w.Header().Set("Access-Control-Allow-Methods","GET, POST, PUT, DELETE, OPTIONS")
+		if r.Method == "OPTIONS" {
+			w.WriteHeader(204)
+			return
+		}
+		base.ServeHTTP(w, r)
+	})
+}

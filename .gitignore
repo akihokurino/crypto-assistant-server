@@ -6,6 +6,8 @@
 /proto/swift/*.swift
 /proto/swift/.DS_Store
 /proto/java/*.java
+/proto/ts/*.ts
+/proto/ts/*.js
 
 functions/node_modules
 
