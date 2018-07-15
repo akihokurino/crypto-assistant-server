@@ -33,11 +33,11 @@ func NewCurrencyPriceProvider(firebaseUtil utils.FirebaseUtil) services.Currency
 	}
 }
 
-func (s *currencyPriceProvider) Provide(ctx context.Context, prices []*models.CurrencyPrice) error {
-	client := s.firebaseUtil.InitRTDBClient(ctx)
+func (p *currencyPriceProvider) Provide(ctx context.Context, prices []*models.CurrencyPrice) error {
+	client := p.firebaseUtil.InitRTDBClient(ctx)
 	var lastError error
 
-	for _, v := range  prices {
+	for _, v := range prices {
 		currencyPriceDAO := newCurrencyPriceDAO(v)
 		ref := client.NewRef(currencyPricePath(v.CurrencyCode))
 		if err := ref.Set(ctx, currencyPriceDAO); err != nil {

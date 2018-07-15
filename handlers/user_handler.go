@@ -81,7 +81,7 @@ func (h *userHandler) GetPortfolios(ctx context.Context, req *pb.UserID) (*pb.Po
 		return nil, handleError(ctx, err)
 	}
 
-	portfolios := models.CalcPortfolios(addresses, assets, currencies, false)
+	portfolios := models.CalcPortfolios(uid, addresses, assets, currencies, false)
 
 	return toPortfolioListResponse(portfolios), nil
 }

@@ -5,15 +5,11 @@ import (
 	"github.com/akihokurino/crypto-assistant-server/applications"
 )
 
-type RegisterCurrencies interface {
-	Exec(w http.ResponseWriter, r *http.Request)
-}
-
 type registerCurrencies struct {
 	currencyApplication applications.CurrencyApplication
 }
 
-func NewRegisterCurrencies(currencyApplication applications.CurrencyApplication) RegisterCurrencies {
+func NewRegisterCurrencies(currencyApplication applications.CurrencyApplication) JobExecutor {
 	return &registerCurrencies{
 		currencyApplication: currencyApplication,
 	}

@@ -21,14 +21,16 @@ func init() {
 	httpClient := api.NewHttpClient()
 	pubsubClient := topic.NewPubsubClient()
 
+	userRepository := datastore.NewUserRepository(dateUtil)
 	currencyRepository := datastore.NewCurrencyRepository()
 	currencyPriceRepository := datastore.NewCurrencyPriceRepository()
 	addressRepository := datastore.NewAddressRepository()
+	assetRepository := datastore.NewAssetRepository()
 
 	currencyPriceProvider := rtdb.NewCurrencyPriceProvider(firebaseUtil)
+	portfolioProvider := rtdb.NewPortfolioProvider(firebaseUtil)
 
 	currencyApplication := applications.NewCurrencyApplication(currencyRepository)
-
 	currencyPriceApplication := applications.NewCurrencyPriceApplication(
 		httpClient,
 		currencyRepository,
@@ -36,16 +38,26 @@ func init() {
 		currencyPriceProvider,
 		idUtil,
 		dateUtil)
-
-	mux.HandleFunc(
-		"/job/logging_currency_price",
-		appEngine(jobs.NewLoggingCurrencyPrice(currencyPriceApplication).Exec))
+	portfolioApplication := applications.NewPortfolioApplication(
+		userRepository,
+		currencyRepository,
+		addressRepository,
+		assetRepository,
+		portfolioProvider,
+	)
 
 	mux.HandleFunc(
 		"/job/register_currencies",
 		appEngine(jobs.NewRegisterCurrencies(currencyApplication).Exec))
 
 	mux.HandleFunc(
-		"/job/update_asset",
-		appEngine(jobs.NewUpdateAsset(addressRepository, pubsubClient).Exec))
+		"/job/update_market",
+		appEngine(jobs.NewUpdateMarket(
+			addressRepository,
+			currencyPriceApplication,
+			pubsubClient).Exec))
+
+	mux.HandleFunc(
+		"/job/broadcast_portfolio",
+		appEngine(jobs.NewBroadcastPortfolio(portfolioApplication).Exec))
 }

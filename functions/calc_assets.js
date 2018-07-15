@@ -1,6 +1,6 @@
 const DataStore = require('@google-cloud/datastore');
-const etherscan = require('etherscan-api').init('FQFUE4MMQW4BIWC2I31176GCQN5ZMJH319');
-const Units = require('ethereumjs-units');
+const request = require('request');
+const ethereum = require('./blockchain/ethereum');
 
 const projectId = 'crypto-assistant-dev';
 
@@ -16,6 +16,9 @@ const calcAssets = (event, callback) => {
     return calcAsset(addressId);
   }))
   .then(() => {
+    return calcPortfolioWebhook();
+  })
+  .then(() => {
     callback();
   })
   .catch(err => {
@@ -24,9 +27,21 @@ const calcAssets = (event, callback) => {
   });
 };
 
+const calcPortfolioWebhook = () => {
+  return new Promise((resolve, reject) => {
+    request.get('https://batch-dot-crypto-assistant-dev.appspot.com/job/broadcast_portfolio')
+      .on('response', (response) => {
+        if (response.status < 300) {
+          resolve();
+        } else {
+          reject();
+        }
+      });
+  });
+};
+
 const calcAsset = (addressId) => {
   const key = dataStore.key(['Address', addressId]);
-  let address;
 
   return dataStore.get(key)
   .then((results) => {
@@ -34,21 +49,15 @@ const calcAsset = (addressId) => {
       return;
     }
 
-    address = results[0];
-    const addressText = results[0].Value;
-    const balance = etherscan.account.balance(addressText);
-    const txList = etherscan.account.txlist(addressText);
+    const address = results[0];
 
-    return Promise.all([balance, txList]);
-  })
-  .then((results) => {
-    const amount = Units.convert(results[0].result, 'wei', 'eth');
-    const transaction = results[1].result;
-
-    return Promise.all([
-      updateAsset(address.UserId, addressId, amount),
-      updateTransaction(address.UserId, addressId, transaction)
-    ]);
+    // TODO: 通貨によってアクセスするBlockchainを決める
+    return ethereum.calcEther(address).then((result) => {
+      return Promise.all([
+        updateAsset(address.UserId, addressId, result.amount),
+        updateTransaction(address.UserId, addressId, result.transaction)
+      ]);
+    });
   });
 };
 

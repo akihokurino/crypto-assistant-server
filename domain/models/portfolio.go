@@ -1,18 +1,25 @@
 package models
 
 type Portfolio struct {
+	UserID       UserID
 	CurrencyCode CurrencyCode
-	Amount float64
+	Amount       float64
 }
 
-func newPortfolio(currency *Currency, amount float64) *Portfolio {
+func newPortfolio(userId UserID, currency *Currency, amount float64) *Portfolio {
 	return &Portfolio{
+		UserID:       userId,
 		CurrencyCode: currency.Code,
-		Amount: amount,
+		Amount:       amount,
 	}
 }
 
-func CalcPortfolios(addresses []*Address, assets []*Asset, currencies []*Currency, showAmount bool) []*Portfolio {
+func CalcPortfolios(
+	userId UserID,
+	addresses []*Address,
+	assets []*Asset,
+	currencies []*Currency,
+	showAmount bool) []*Portfolio {
 	portfolios := make([]*Portfolio, len(currencies))
 	for i, v1 := range currencies {
 		var address *Address
@@ -24,7 +31,7 @@ func CalcPortfolios(addresses []*Address, assets []*Asset, currencies []*Currenc
 		}
 
 		if address == nil {
-			portfolios[i] = newPortfolio(v1, 0)
+			portfolios[i] = newPortfolio(userId, v1, 0)
 			continue
 		}
 
@@ -37,14 +44,14 @@ func CalcPortfolios(addresses []*Address, assets []*Asset, currencies []*Currenc
 		}
 
 		if asset == nil {
-			portfolios[i] = newPortfolio(v1, 0)
+			portfolios[i] = newPortfolio(userId, v1, 0)
 			continue
 		}
 
 		if showAmount {
-			portfolios[i] = newPortfolio(v1, asset.Amount)
+			portfolios[i] = newPortfolio(userId, v1, asset.Amount)
 		} else {
-			portfolios[i] = newPortfolio(v1, 0)
+			portfolios[i] = newPortfolio(userId, v1, 0)
 		}
 	}
 	return portfolios

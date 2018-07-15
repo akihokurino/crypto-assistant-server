@@ -210,7 +210,7 @@ func (h *meHandler) GetPortfolios(ctx context.Context, req *pb.Empty) (*pb.Portf
 		return nil, handleError(ctx, err)
 	}
 
-	portfolios := models.CalcPortfolios(addresses, assets, currencies, true)
+	portfolios := models.CalcPortfolios(uid, addresses, assets, currencies, true)
 
 	return toPortfolioListResponse(portfolios), nil
 }

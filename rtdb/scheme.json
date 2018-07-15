@@ -1,8 +1,14 @@
 {
-  "currencies": {
+  "currency": {
     "{code}": {
       "jpy": 0.0,
       "usd": 0.0
+    }
+  },
+  "portfolio": {
+    "{userId}": {
+      "totalAmount": 0.0,
+      "{code}": 0.0
     }
   }
 }
