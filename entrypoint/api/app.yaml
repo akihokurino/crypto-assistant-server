@@ -7,6 +7,7 @@ handlers:
 
 env_variables:
   FIREBASE_ADMIN_KEY: /Users/akiho/.firebase/crypto-assistant-dev-firebase-adminsdk-eeusr-12a9467b10.json
+  RTDB_URL: https://crypto-assistant-dev.firebaseio.com/
 
 skip_files:
 - .*vendor

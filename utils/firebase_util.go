@@ -8,10 +8,12 @@ import (
 	"context"
 	"fmt"
 	"firebase.google.com/go/auth"
+	"firebase.google.com/go/db"
 )
 
 type FirebaseUtil interface {
 	InitAuthClient(ctx context.Context) *auth.Client
+	InitRTDBClient(ctx context.Context) *db.Client
 }
 
 type firebaseUtil struct {
@@ -47,6 +49,15 @@ func (u *firebaseUtil) InitAuthClient(ctx context.Context) *auth.Client {
 	client, err := u.initApp(ctx).Auth(ctx)
 	if err != nil {
 		panic(fmt.Errorf("error getting Auth client: %v", err))
+	}
+
+	return client
+}
+
+func (u *firebaseUtil) InitRTDBClient(ctx context.Context) *db.Client {
+	client, err := u.initApp(ctx).Database(ctx)
+	if err != nil {
+		panic(fmt.Errorf("error getting RTDB client: %v", err))
 	}
 
 	return client

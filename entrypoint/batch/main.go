@@ -8,6 +8,7 @@ import (
 	"github.com/akihokurino/crypto-assistant-server/applications"
 	"github.com/akihokurino/crypto-assistant-server/utils"
 	"github.com/akihokurino/crypto-assistant-server/infra/topic"
+	"github.com/akihokurino/crypto-assistant-server/infra/persistence/rtdb"
 )
 
 func init() {
@@ -15,6 +16,7 @@ func init() {
 
 	idUtil := utils.NewIDUtil()
 	dateUtil := utils.NewDateUtil()
+	firebaseUtil := utils.NewFirebaseUtil()
 
 	httpClient := api.NewHttpClient()
 	pubsubClient := topic.NewPubsubClient()
@@ -23,12 +25,15 @@ func init() {
 	currencyPriceRepository := datastore.NewCurrencyPriceRepository()
 	addressRepository := datastore.NewAddressRepository()
 
+	currencyPriceProvider := rtdb.NewCurrencyPriceProvider(firebaseUtil)
+
 	currencyApplication := applications.NewCurrencyApplication(currencyRepository)
 
 	currencyPriceApplication := applications.NewCurrencyPriceApplication(
 		httpClient,
 		currencyRepository,
 		currencyPriceRepository,
+		currencyPriceProvider,
 		idUtil,
 		dateUtil)
 

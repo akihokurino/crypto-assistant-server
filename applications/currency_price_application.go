@@ -8,6 +8,7 @@ import (
 	"strings"
 	"os"
 	"github.com/akihokurino/crypto-assistant-server/domain/models"
+	"github.com/akihokurino/crypto-assistant-server/domain/services"
 )
 
 type CurrencyPriceApplication interface {
@@ -18,6 +19,7 @@ type currencyPriceApplication struct {
 	httpClient              api.HttpClient
 	currencyRepository      repositories.CurrencyRepository
 	currencyPriceRepository repositories.CurrencyPriceRepository
+	currencyPriceProvider   services.CurrencyPriceProvider
 	idUtil                  utils.IDUtil
 	dateUtil                utils.DateUtil
 }
@@ -26,12 +28,14 @@ func NewCurrencyPriceApplication(
 	httpClient api.HttpClient,
 	currencyRepository repositories.CurrencyRepository,
 	currencyPriceRepository repositories.CurrencyPriceRepository,
+	currencyPriceProvider services.CurrencyPriceProvider,
 	idUtil utils.IDUtil,
 	dateUtil utils.DateUtil) CurrencyPriceApplication {
 	return &currencyPriceApplication{
 		httpClient:              httpClient,
 		currencyRepository:      currencyRepository,
 		currencyPriceRepository: currencyPriceRepository,
+		currencyPriceProvider:   currencyPriceProvider,
 		idUtil:                  idUtil,
 		dateUtil:                dateUtil,
 	}
@@ -61,7 +65,9 @@ func (a *currencyPriceApplication) CreateEachTime(ctx context.Context) error {
 		return err
 	}
 
-	for _, v := range currencies {
+	prices := make([]*models.CurrencyPrice, len(currencies))
+
+	for i, v := range currencies {
 		priceMap := res[string(v.Code)].(map[string]interface{})
 		usd := priceMap["USD"].(float64)
 		jpy := priceMap["JPY"].(float64)
@@ -73,8 +79,19 @@ func (a *currencyPriceApplication) CreateEachTime(ctx context.Context) error {
 			jpy,
 			now)
 
+		prices[i] = currencyPrice
+
 		_ = a.currencyPriceRepository.Put(ctx, currencyPrice)
 	}
+
+	println("test")
+
+	if err := a.currencyPriceProvider.Provide(ctx, prices); err != nil {
+		println(err.Error())
+		return err
+	}
+
+	println("test huga")
 
 	return nil
 }
