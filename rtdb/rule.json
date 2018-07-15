@@ -1,6 +1,14 @@
 {
   "rules": {
-    ".read": true,
-    ".write": false
+    ".read": false,
+    ".write": false,
+    "currency": {
+      ".read": true
+    },
+    "portfolio": {
+      "$userId": {
+        ".read": "auth.uid == $userId"
+      }
+    }
   }
 }
