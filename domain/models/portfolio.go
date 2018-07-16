@@ -60,7 +60,11 @@ func CalcMyPortfolios(
 
 	var portfolios []*Portfolio
 	for code, amount := range amountMap {
-		portfolios = append(portfolios, newPortfolio(userId, code, amount, convertToJPY(code, amount)))
+		if amount > 0.0 {
+			portfolios = append(portfolios, newPortfolio(userId, code, amount, convertToJPY(code, amount)))
+		} else {
+			portfolios = append(portfolios, newPortfolio(userId, code, amount, 0.0))
+		}
 	}
 	return portfolios
 }
