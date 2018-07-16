@@ -210,7 +210,18 @@ func (h *meHandler) GetPortfolios(ctx context.Context, req *pb.Empty) (*pb.Portf
 		return nil, handleError(ctx, err)
 	}
 
-	portfolios := models.CalcPortfolios(uid, addresses, assets, currencies, true)
+	portfolios := models.CalcMyPortfolios(
+		uid,
+		addresses,
+		assets,
+		currencies,
+		func(code models.CurrencyCode, amount float64) float64 {
+			price, err := h.currencyPriceRepository.GetLastByCurrency(ctx, code)
+			if err != nil {
+				return 0.0
+			}
+			return amount * price.JPY
+		})
 
 	return toPortfolioListResponse(portfolios), nil
 }

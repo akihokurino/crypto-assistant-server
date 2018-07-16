@@ -12,11 +12,12 @@ type PortfolioApplication interface {
 }
 
 type portfolioApplication struct {
-	userRepository     repositories.UserRepository
-	currencyRepository repositories.CurrencyRepository
-	addressRepository  repositories.AddressRepository
-	assetRepository    repositories.AssetRepository
-	portfolioProvider  services.PortfolioProvider
+	userRepository          repositories.UserRepository
+	currencyRepository      repositories.CurrencyRepository
+	addressRepository       repositories.AddressRepository
+	assetRepository         repositories.AssetRepository
+	currencyPriceRepository repositories.CurrencyPriceRepository
+	portfolioProvider       services.PortfolioProvider
 }
 
 func NewPortfolioApplication(
@@ -24,13 +25,15 @@ func NewPortfolioApplication(
 	currencyRepository repositories.CurrencyRepository,
 	addressRepository repositories.AddressRepository,
 	assetRepository repositories.AssetRepository,
+	currencyPriceRepository repositories.CurrencyPriceRepository,
 	portfolioProvider services.PortfolioProvider) PortfolioApplication {
 	return &portfolioApplication{
-		userRepository:     userRepository,
-		currencyRepository: currencyRepository,
-		addressRepository:  addressRepository,
-		assetRepository:    assetRepository,
-		portfolioProvider:  portfolioProvider,
+		userRepository:          userRepository,
+		currencyRepository:      currencyRepository,
+		addressRepository:       addressRepository,
+		assetRepository:         assetRepository,
+		currencyPriceRepository: currencyPriceRepository,
+		portfolioProvider:       portfolioProvider,
 	}
 }
 
@@ -60,7 +63,18 @@ func (a *portfolioApplication) Broadcast(ctx context.Context) error {
 			break
 		}
 
-		portfolios := models.CalcPortfolios(v.Id, addresses, assets, currencies, true)
+		portfolios := models.CalcMyPortfolios(
+			v.Id,
+			addresses,
+			assets,
+			currencies,
+			func(code models.CurrencyCode, amount float64) float64 {
+				price, err := a.currencyPriceRepository.GetLastByCurrency(ctx, code)
+				if err != nil {
+					return 0.0
+				}
+				return amount * price.JPY
+			})
 
 		if err := a.portfolioProvider.Provide(ctx, v.Id, portfolios); err != nil {
 			lastError = err

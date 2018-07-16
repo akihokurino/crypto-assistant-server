@@ -68,7 +68,6 @@ func init() {
 	userService := pb.NewUserServiceServer(handlers.NewUserHandler(
 		userRepository,
 		addressRepository,
-		assetRepository,
 		currencyRepository), newLoggingServerHooks())
 	mux.Handle(pb.UserServicePathPrefix, cros(appEngine(auth(userService))))
 

@@ -104,5 +104,6 @@ func toPortfolioResponse(from *models.Portfolio) *pb.PortfolioResponse {
 	return &pb.PortfolioResponse{
 		CurrencyCode: string(from.CurrencyCode),
 		Amount:       float32(from.Amount),
+		JpyAsset:     float32(from.JPYAsset),
 	}
 }

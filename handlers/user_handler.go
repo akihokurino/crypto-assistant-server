@@ -10,19 +10,16 @@ import (
 type userHandler struct {
 	userRepository     repositories.UserRepository
 	addressRepository  repositories.AddressRepository
-	assetRepository    repositories.AssetRepository
 	currencyRepository repositories.CurrencyRepository
 }
 
 func NewUserHandler(
 	userRepository repositories.UserRepository,
 	addressRepository repositories.AddressRepository,
-	assetRepository repositories.AssetRepository,
 	currencyRepository repositories.CurrencyRepository) pb.UserService {
 	return &userHandler{
 		userRepository:     userRepository,
 		addressRepository:  addressRepository,
-		assetRepository:    assetRepository,
 		currencyRepository: currencyRepository,
 	}
 }
@@ -76,12 +73,7 @@ func (h *userHandler) GetPortfolios(ctx context.Context, req *pb.UserID) (*pb.Po
 		return nil, handleError(ctx, err)
 	}
 
-	assets, err := h.assetRepository.GetByUser(ctx, uid)
-	if err != nil {
-		return nil, handleError(ctx, err)
-	}
-
-	portfolios := models.CalcPortfolios(uid, addresses, assets, currencies, false)
+	portfolios := models.CalcOtherPortfolios(uid, addresses, currencies)
 
 	return toPortfolioListResponse(portfolios), nil
 }

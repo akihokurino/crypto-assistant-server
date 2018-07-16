@@ -43,6 +43,7 @@ func init() {
 		currencyRepository,
 		addressRepository,
 		assetRepository,
+		currencyPriceRepository,
 		portfolioProvider,
 	)
 

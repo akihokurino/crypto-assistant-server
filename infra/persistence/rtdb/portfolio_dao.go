@@ -8,12 +8,14 @@ import (
 )
 
 type PortfolioDAO struct {
-	Amount float64 `json:"amount"`
+	Amount   float64 `json:"amount"`
+	JPYAsset float64 `json:"jpyAsset"`
 }
 
 func newPortfolioDAO(portfolio *models.Portfolio) *PortfolioDAO {
 	return &PortfolioDAO{
-		Amount: portfolio.Amount,
+		Amount:   portfolio.Amount,
+		JPYAsset: portfolio.JPYAsset,
 	}
 }
 

@@ -61,7 +61,8 @@ message AssetResponse {
 
 message PortfolioResponse {
     string currencyCode = 1;
-    float amount = 3;
+    float amount = 2;
+    float jpyAsset = 3;
 }
 
 message PortfolioListResponse {
