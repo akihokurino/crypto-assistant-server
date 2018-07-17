@@ -19,9 +19,10 @@ func newPortfolioDAO(portfolio *models.Portfolio) *PortfolioDAO {
 	}
 }
 
-func newTotalPortfolioDAO(amount float64) *PortfolioDAO {
+func newTotalPortfolioDAO(amount float64, jpyAsset float64) *PortfolioDAO {
 	return &PortfolioDAO{
 		Amount: amount,
+		JPYAsset: jpyAsset,
 	}
 }
 
@@ -47,6 +48,7 @@ func (p *portfolioProvider) Provide(ctx context.Context, userId models.UserID, p
 	client := p.firebaseUtil.InitRTDBClient(ctx)
 	var lastError error
 	var totalAmount float64
+	var totalJPYAsset float64
 
 	for _, v := range portfolios {
 		portfolioDAO := newPortfolioDAO(v)
@@ -56,6 +58,7 @@ func (p *portfolioProvider) Provide(ctx context.Context, userId models.UserID, p
 			break
 		}
 		totalAmount += v.Amount
+		totalJPYAsset += v.JPYAsset
 	}
 
 	if lastError != nil {
@@ -63,7 +66,7 @@ func (p *portfolioProvider) Provide(ctx context.Context, userId models.UserID, p
 	}
 
 	totalRef := client.NewRef(totalPortfolioPath(userId))
-	if err := totalRef.Set(ctx, newTotalPortfolioDAO(totalAmount)); err != nil {
+	if err := totalRef.Set(ctx, newTotalPortfolioDAO(totalAmount, totalJPYAsset)); err != nil {
 		return err
 	}
 

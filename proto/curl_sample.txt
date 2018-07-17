@@ -1,3 +1,5 @@
+https://crypto-assistant-dev.appspot.com
+
 curl localhost:8081/job/register_currencies
 
 curl -X POST \
