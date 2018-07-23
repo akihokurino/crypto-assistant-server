@@ -8,7 +8,8 @@ import (
 )
 
 type PortfolioApplication interface {
-	Broadcast(ctx context.Context) error
+	BroadcastAllUser(ctx context.Context) error
+	Broadcast(ctx context.Context, userId models.UserID) error
 }
 
 type portfolioApplication struct {
@@ -37,7 +38,7 @@ func NewPortfolioApplication(
 	}
 }
 
-func (a *portfolioApplication) Broadcast(ctx context.Context) error {
+func (a *portfolioApplication) BroadcastAllUser(ctx context.Context) error {
 	users, err := a.userRepository.GetAll(ctx)
 	if err != nil {
 		return err
@@ -83,4 +84,45 @@ func (a *portfolioApplication) Broadcast(ctx context.Context) error {
 	}
 
 	return lastError
+}
+
+func (a *portfolioApplication) Broadcast(ctx context.Context, userId models.UserID) error {
+	user, err := a.userRepository.Get(ctx, userId)
+	if err != nil {
+		return err
+	}
+
+	currencies, err := a.currencyRepository.GetAll(ctx)
+	if err != nil {
+		return err
+	}
+
+	addresses, err := a.addressRepository.GetByUser(ctx, user.Id)
+	if err != nil {
+		return err
+	}
+
+	assets, err := a.assetRepository.GetByUser(ctx, user.Id)
+	if err != nil {
+		return err
+	}
+
+	portfolios := models.CalcMyPortfolios(
+		user.Id,
+		addresses,
+		assets,
+		currencies,
+		func(code models.CurrencyCode, amount float64) float64 {
+			price, err := a.currencyPriceRepository.GetLastByCurrency(ctx, code)
+			if err != nil {
+				return 0.0
+			}
+			return amount * price.JPY
+		})
+
+	if err := a.portfolioProvider.Provide(ctx, user.Id, portfolios); err != nil {
+		return err
+	}
+
+	return nil
 }

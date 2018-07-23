@@ -37,7 +37,7 @@ func (h *addressHandler) Create(ctx context.Context, req *pb.CreateAddressReques
 		return nil, handleError(ctx, err)
 	}
 
-	if err := h.portfolioApplication.Broadcast(ctx); err != nil {
+	if err := h.portfolioApplication.Broadcast(ctx, uid); err != nil {
 		return nil, handleError(ctx, err)
 	}
 
@@ -55,7 +55,7 @@ func (h *addressHandler) Update(ctx context.Context, req *pb.UpdateAddressReques
 		return nil, handleError(ctx, err)
 	}
 
-	if err := h.portfolioApplication.Broadcast(ctx); err != nil {
+	if err := h.portfolioApplication.Broadcast(ctx, uid); err != nil {
 		return nil, handleError(ctx, err)
 	}
 
@@ -72,7 +72,7 @@ func (h *addressHandler) Delete(ctx context.Context, req *pb.AddressID) (*pb.Emp
 		return nil, handleError(ctx, err)
 	}
 
-	if err := h.portfolioApplication.Broadcast(ctx); err != nil {
+	if err := h.portfolioApplication.Broadcast(ctx, uid); err != nil {
 		return nil, handleError(ctx, err)
 	}
 

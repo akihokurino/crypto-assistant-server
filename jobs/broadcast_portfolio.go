@@ -18,7 +18,7 @@ func NewBroadcastPortfolio(portfolioApplication applications.PortfolioApplicatio
 func (j *broadcastPortfolio) Exec(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	if err := j.portfolioApplication.Broadcast(ctx); err != nil {
+	if err := j.portfolioApplication.BroadcastAllUser(ctx); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
