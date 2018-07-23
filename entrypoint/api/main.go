@@ -8,6 +8,7 @@ import (
 	"github.com/akihokurino/crypto-assistant-server/applications"
 	"github.com/akihokurino/crypto-assistant-server/utils"
 	"github.com/akihokurino/crypto-assistant-server/infra/topic"
+	"github.com/akihokurino/crypto-assistant-server/infra/persistence/rtdb"
 )
 
 const uploadUserIconCallbackPath = "/users/icon/upload_callback"
@@ -18,6 +19,7 @@ func init() {
 	contextUtil := utils.NewContextUtil()
 	idUtil := utils.NewIDUtil()
 	dateUtil := utils.NewDateUtil()
+	firebaseUtil := utils.NewFirebaseUtil()
 
 	pubsubClient := topic.NewPubsubClient()
 
@@ -28,6 +30,8 @@ func init() {
 	assetRepository := datastore.NewAssetRepository()
 	transactionRepository := datastore.NewTransactionRepository()
 
+	portfolioProvider := rtdb.NewPortfolioProvider(firebaseUtil)
+
 	userApplication := applications.NewUserApplication(userRepository)
 	uploadApplication := applications.NewUploadApplication(userRepository)
 	addressApplication := applications.NewAddressApplication(
@@ -36,6 +40,14 @@ func init() {
 		transactionRepository,
 		pubsubClient,
 		idUtil)
+	portfolioApplication := applications.NewPortfolioApplication(
+		userRepository,
+		currencyRepository,
+		addressRepository,
+		assetRepository,
+		currencyPriceRepository,
+		portfolioProvider,
+	)
 
 	uploader := handlers.NewUploader(
 		"crypto-assistant-dev.appspot.com/users/",
@@ -73,6 +85,7 @@ func init() {
 
 	addressService := pb.NewAddressServiceServer(handlers.NewAddressHandler(
 		addressApplication,
+		portfolioApplication,
 		contextUtil), newLoggingServerHooks())
 	mux.Handle(pb.AddressServicePathPrefix, cros(appEngine(auth(addressService))))
 

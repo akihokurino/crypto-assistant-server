@@ -10,16 +10,19 @@ import (
 )
 
 type addressHandler struct {
-	addressApplication applications.AddressApplication
-	contextUtil        utils.ContextUtil
+	addressApplication   applications.AddressApplication
+	portfolioApplication applications.PortfolioApplication
+	contextUtil          utils.ContextUtil
 }
 
 func NewAddressHandler(
 	addressApplication applications.AddressApplication,
+	portfolioApplication applications.PortfolioApplication,
 	contextUtil utils.ContextUtil) pb.AddressService {
 	return &addressHandler{
-		addressApplication: addressApplication,
-		contextUtil:        contextUtil,
+		addressApplication:   addressApplication,
+		portfolioApplication: portfolioApplication,
+		contextUtil:          contextUtil,
 	}
 }
 
@@ -31,6 +34,10 @@ func (h *addressHandler) Create(ctx context.Context, req *pb.CreateAddressReques
 
 	address, err := h.addressApplication.Create(ctx, uid, models.CurrencyCode(req.CurrencyCode), req.Value)
 	if err != nil {
+		return nil, handleError(ctx, err)
+	}
+
+	if err := h.portfolioApplication.Broadcast(ctx); err != nil {
 		return nil, handleError(ctx, err)
 	}
 
@@ -48,6 +55,10 @@ func (h *addressHandler) Update(ctx context.Context, req *pb.UpdateAddressReques
 		return nil, handleError(ctx, err)
 	}
 
+	if err := h.portfolioApplication.Broadcast(ctx); err != nil {
+		return nil, handleError(ctx, err)
+	}
+
 	return toAddressResponse(address), nil
 }
 
@@ -58,6 +69,10 @@ func (h *addressHandler) Delete(ctx context.Context, req *pb.AddressID) (*pb.Emp
 	}
 
 	if err := h.addressApplication.Delete(ctx, uid, models.AddressID(req.AddressId)); err != nil {
+		return nil, handleError(ctx, err)
+	}
+
+	if err := h.portfolioApplication.Broadcast(ctx); err != nil {
 		return nil, handleError(ctx, err)
 	}
 
