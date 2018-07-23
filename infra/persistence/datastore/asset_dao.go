@@ -47,12 +47,12 @@ func NewAssetRepository() repositories.AssetRepository {
 	return &assetRepository{}
 }
 
+// キャッシュしたくないのでgoonは使わない
 func (r *assetRepository) GetByUser(ctx context.Context, userId models.UserID) ([]*models.Asset, error) {
-	g := goon.FromContext(ctx)
 	q := datastore.NewQuery(kindAsset).Filter("UserId =", userId)
 
 	var assetDAOList []*AssetDAO
-	if _, err := g.GetAll(q, &assetDAOList); err != nil {
+	if _, err := q.GetAll(ctx, &assetDAOList); err != nil {
 		return nil, errors.WithStack(err)
 	}
 
@@ -64,12 +64,12 @@ func (r *assetRepository) GetByUser(ctx context.Context, userId models.UserID) (
 	return assetList, nil
 }
 
+// キャッシュしたくないのでgoonは使わない
 func (r *assetRepository) Get(ctx context.Context, userId models.UserID, addressId models.AddressID) (*models.Asset, error) {
-	g := goon.FromContext(ctx)
-
 	assetDAO := onlyIdAssetDAO(userId, addressId)
+	key := datastore.NewKey(ctx, kindAsset, assetDAO.Id, 0, nil)
 
-	if err := g.Get(assetDAO); err != nil {
+	if err := datastore.Get(ctx, key, assetDAO); err != nil {
 		return nil, errors.WithStack(err)
 	}
 
