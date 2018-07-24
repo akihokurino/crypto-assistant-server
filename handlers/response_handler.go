@@ -107,3 +107,19 @@ func toPortfolioResponse(from *models.Portfolio) *pb.PortfolioResponse {
 		JpyAsset:     float32(from.JPYAsset),
 	}
 }
+
+func toChartResponse(from []*models.DataPoint) *pb.ChartResponse {
+	var items []*pb.DataPointResponse
+	for _, v := range from {
+		items = append(items, toDataPointResponse(v))
+	}
+	return &pb.ChartResponse{Items: items}
+}
+
+func toDataPointResponse(from *models.DataPoint) *pb.DataPointResponse {
+	return &pb.DataPointResponse{
+		Datetime: from.Datetime.Format("2006-01-02 15:04:05"),
+		Usd: from.USD,
+		Jpy: int64(from.JPY),
+	}
+}

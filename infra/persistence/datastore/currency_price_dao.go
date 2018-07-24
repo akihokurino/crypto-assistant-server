@@ -8,6 +8,7 @@ import (
 	"google.golang.org/appengine/datastore"
 	"time"
 	"github.com/pkg/errors"
+	"github.com/akihokurino/crypto-assistant-server/utils"
 )
 
 const kindCurrencyPrice = "CurrencyPrice"
@@ -42,10 +43,13 @@ func fromCurrencyPriceToDAO(from *models.CurrencyPrice) *CurrencyPriceDAO {
 }
 
 type currencyPriceRepository struct {
+	dateUtil utils.DateUtil
 }
 
-func NewCurrencyPriceRepository() repositories.CurrencyPriceRepository {
-	return &currencyPriceRepository{}
+func NewCurrencyPriceRepository(dateUtil utils.DateUtil) repositories.CurrencyPriceRepository {
+	return &currencyPriceRepository{
+		dateUtil: dateUtil,
+	}
 }
 
 func (r *currencyPriceRepository) GetByCurrency(
@@ -83,6 +87,29 @@ func (r *currencyPriceRepository) GetLastByCurrency(ctx context.Context, code mo
 	}
 
 	return currencyPriceList[0], nil
+}
+
+func (r *currencyPriceRepository) GetLast24HourByCurrency(ctx context.Context, code models.CurrencyCode) ([]*models.CurrencyPrice, error) {
+	g := goon.FromContext(ctx)
+
+	target := r.dateUtil.CurrentTime().Add(-24 * time.Hour)
+
+	q := datastore.NewQuery(kindCurrencyPrice).
+		Filter("CurrencyCode =", code).
+		Filter("Datetime <=", target).
+		Order("-Datetime")
+
+	var currencyPriceDAOList []*CurrencyPriceDAO
+	if _, err := g.GetAll(q, &currencyPriceDAOList); err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	currencyPriceList := make([]*models.CurrencyPrice, len(currencyPriceDAOList))
+	for i, v := range currencyPriceDAOList {
+		currencyPriceList[i] = v.toModel()
+	}
+
+	return currencyPriceList, nil
 }
 
 func (r *currencyPriceRepository) Put(ctx context.Context, currencyPrice *models.CurrencyPrice) error {

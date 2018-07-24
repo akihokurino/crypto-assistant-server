@@ -24,7 +24,7 @@ func init() {
 	pubsubClient := topic.NewPubsubClient()
 
 	currencyRepository := datastore.NewCurrencyRepository()
-	currencyPriceRepository := datastore.NewCurrencyPriceRepository()
+	currencyPriceRepository := datastore.NewCurrencyPriceRepository(dateUtil)
 	userRepository := datastore.NewUserRepository(dateUtil)
 	addressRepository := datastore.NewAddressRepository()
 	assetRepository := datastore.NewAssetRepository()
@@ -65,6 +65,9 @@ func init() {
 	mux.Handle(
 		pb.CurrencyPriceServicePathPrefix,
 		cros(appEngine(currencyPriceService)))
+
+	chartService := pb.NewChartServiceServer(handlers.NewChartHandler(currencyPriceRepository), newLoggingServerHooks())
+	mux.Handle(pb.ChartServicePathPrefix, cros(appEngine(chartService)))
 
 	meService := pb.NewMeServiceServer(handlers.NewMeHandler(
 		userRepository,

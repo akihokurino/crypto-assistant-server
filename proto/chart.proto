@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+option go_package = "pb";
+option java_package = "";
+option swift_prefix = "";
+
+import "common.proto";
+
+package chart;
+
+service ChartService {
+    rpc GetLast24Hour (common.CurrencyCode) returns (ChartResponse);
+}
+
+message ChartResponse {
+    repeated DataPointResponse items = 1;
+}
+
+message DataPointResponse {
+    string datetime = 1;
+    double usd = 2;
+    int64 jpy = 3;
+}
