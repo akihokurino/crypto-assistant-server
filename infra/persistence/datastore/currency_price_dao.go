@@ -96,7 +96,7 @@ func (r *currencyPriceRepository) GetLast24HourByCurrency(ctx context.Context, c
 
 	q := datastore.NewQuery(kindCurrencyPrice).
 		Filter("CurrencyCode =", code).
-		Filter("Datetime <=", target).
+		Filter("Datetime >=", target).
 		Order("-Datetime")
 
 	var currencyPriceDAOList []*CurrencyPriceDAO
