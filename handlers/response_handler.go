@@ -4,7 +4,12 @@ import (
 	"github.com/akihokurino/crypto-assistant-server/domain/models"
 	"github.com/akihokurino/crypto-assistant-server/proto/go"
 	"net/url"
+	"time"
 )
+
+func toJSTString(now time.Time) string {
+	return now.In(time.FixedZone("Asia/Tokyo", 9*60*60)).Format("2006-01-02 15:04:05")
+}
 
 func toEmptyResponse() *pb.Empty {
 	return &pb.Empty{}
@@ -36,7 +41,7 @@ func toCurrencyPriceResponse(from *models.CurrencyPrice) *pb.CurrencyPriceRespon
 		CurrencyCode: string(from.CurrencyCode),
 		Usd:          from.USD,
 		Jpy:          int64(from.JPY),
-		Datetime:     from.Datetime.Format("2006-01-02 15:04:05"),
+		Datetime:     toJSTString(from.Datetime),
 	}
 }
 
@@ -118,8 +123,8 @@ func toChartResponse(from []*models.DataPoint) *pb.ChartResponse {
 
 func toDataPointResponse(from *models.DataPoint) *pb.DataPointResponse {
 	return &pb.DataPointResponse{
-		Datetime: from.Datetime.Format("2006-01-02 15:04:05"),
-		Usd: from.USD,
-		Jpy: int64(from.JPY),
+		Datetime: toJSTString(from.Datetime),
+		Usd:      from.USD,
+		Jpy:      int64(from.JPY),
 	}
 }
