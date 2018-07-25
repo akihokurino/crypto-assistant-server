@@ -7,6 +7,7 @@ import (
 	"github.com/akihokurino/crypto-assistant-server/utils"
 	"errors"
 	"github.com/akihokurino/crypto-assistant-server/infra/topic"
+	"github.com/akihokurino/crypto-assistant-server/infra/persistence/datastore"
 )
 
 type AddressApplication interface {
@@ -52,22 +53,29 @@ func (a *addressApplication) Create(
 		return nil, errors.New("address already created")
 	}
 
-	// TODO: Transaction
-	address := models.NewAddress(models.AddressID(a.idUtil.MakeRandomKey()), userId, currencyCode, addressText)
+	var address *models.Address
 
-	if err := a.addressRepository.Put(ctx, address); err != nil {
-		return nil, err
-	}
+	if err := datastore.Transaction(ctx, func(ctx context.Context) error {
+		address = models.NewAddress(models.AddressID(a.idUtil.MakeRandomKey()), userId, currencyCode, addressText)
 
-	asset := models.NewAsset(userId, address.Id, 0)
+		if err := a.addressRepository.Put(ctx, address); err != nil {
+			return err
+		}
 
-	if err := a.assetRepository.Put(ctx, asset); err != nil {
-		return nil, err
-	}
+		asset := models.NewAsset(userId, address.Id, 0)
 
-	transaction := models.NewTransaction(userId, address.Id, "")
+		if err := a.assetRepository.Put(ctx, asset); err != nil {
+			return err
+		}
 
-	if err := a.transactionRepository.Put(ctx, transaction); err != nil {
+		transaction := models.NewTransaction(userId, address.Id, "")
+
+		if err := a.transactionRepository.Put(ctx, transaction); err != nil {
+			return err
+		}
+
+		return nil
+	}); err != nil {
 		return nil, err
 	}
 
@@ -90,20 +98,25 @@ func (a *addressApplication) Update(ctx context.Context, userId models.UserID, a
 
 	address.Value = addressText
 
-	// TODO: Transaction
-	if err := a.addressRepository.Put(ctx, address); err != nil {
-		return nil, err
-	}
+	if err := datastore.Transaction(ctx, func(ctx context.Context) error {
+		if err := a.addressRepository.Put(ctx, address); err != nil {
+			return err
+		}
 
-	asset := models.NewAsset(userId, address.Id, 0)
+		asset := models.NewAsset(userId, address.Id, 0)
 
-	if err := a.assetRepository.Put(ctx, asset); err != nil {
-		return nil, err
-	}
+		if err := a.assetRepository.Put(ctx, asset); err != nil {
+			return err
+		}
 
-	transaction := models.NewTransaction(userId, address.Id, "")
+		transaction := models.NewTransaction(userId, address.Id, "")
 
-	if err := a.transactionRepository.Put(ctx, transaction); err != nil {
+		if err := a.transactionRepository.Put(ctx, transaction); err != nil {
+			return err
+		}
+
+		return nil
+	}); err != nil {
 		return nil, err
 	}
 
@@ -124,16 +137,21 @@ func (a *addressApplication) Delete(ctx context.Context, userId models.UserID, a
 		return errors.New("only owner can delete")
 	}
 
-	// TODO: Transaction
-	if err := a.addressRepository.Delete(ctx, addressId); err != nil {
-		return err
-	}
+	if err := datastore.Transaction(ctx, func(ctx context.Context) error {
+		if err := a.addressRepository.Delete(ctx, addressId); err != nil {
+			return err
+		}
 
-	if err := a.assetRepository.Delete(ctx, userId, addressId); err != nil {
-		return err
-	}
+		if err := a.assetRepository.Delete(ctx, userId, addressId); err != nil {
+			return err
+		}
 
-	if err := a.transactionRepository.Delete(ctx, userId, addressId); err != nil {
+		if err := a.transactionRepository.Delete(ctx, userId, addressId); err != nil {
+			return err
+		}
+
+		return nil
+	}); err != nil {
 		return err
 	}
 

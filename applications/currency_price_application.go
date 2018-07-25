@@ -84,14 +84,9 @@ func (a *currencyPriceApplication) CreateEachTime(ctx context.Context) error {
 		_ = a.currencyPriceRepository.Put(ctx, currencyPrice)
 	}
 
-	println("test")
-
 	if err := a.currencyPriceProvider.Provide(ctx, prices); err != nil {
-		println(err.Error())
 		return err
 	}
-
-	println("test huga")
 
 	return nil
 }
