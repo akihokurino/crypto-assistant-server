@@ -23,7 +23,7 @@ func init() {
 
 	userRepository := datastore.NewUserRepository(dateUtil)
 	currencyRepository := datastore.NewCurrencyRepository()
-	currencyPriceRepository := datastore.NewCurrencyPriceRepository()
+	currencyPriceRepository := datastore.NewCurrencyPriceRepository(dateUtil)
 	addressRepository := datastore.NewAddressRepository()
 	assetRepository := datastore.NewAssetRepository()
 
